@@ -33,6 +33,9 @@
             p {
                 font-size: large;
             }
+            .grid-item {
+                transition: background-color, 0.5s;
+            }
         </style>
         <script>
             var finished = false;
@@ -98,6 +101,7 @@
         <table id="grid">
         </table>
         <p id="prompt">听说你很聪明！来挑战关灯游戏吧！</p>
+        <p><em>Tip:</em>点击上面的方格</p>
         <script>
             var grid = document.getElementById("grid");
             var items = new Array(5);
