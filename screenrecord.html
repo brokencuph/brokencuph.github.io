@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<head>
+    <title>Test Screen Capture</title>
+</head>
+<body>
+    <h1>This web page allows you to record your screen.</h1>
+    <p>
+        <button id="start">Start Capture</button>
+        <button id="stop">Stop Capture</button>
+        <!--<input id="is_mouse" type="checkbox"><span>capture mouse</span>-->
+        <!--<input id="is_audio" type="checkbox"><span>capture audio</span>-->
+    </p>
+
+    <video id="video_disp" autoplay></video>
+    <script>
+        const startButton = document.getElementById("start")
+        const stopButton = document.getElementById("stop")
+        const videoElem = document.getElementById("video_disp")
+        //const mouseCapture = document.getElementById("is_mouse")
+        //const audioCapture = document.getElementById("is_audio")
+
+        const displayMediaOptions = {
+            video: {
+                cursor: "always"
+            },
+            audio: false
+        }
+
+        const mediaRecorderOptions = {
+            mimeType: 'video/webm'
+        }
+
+        var mediaRecorder
+        var recordedTrunk = []
+
+        function downloadRecorded() {
+            let blob = new Blob(recordedTrunk, {
+                type: "video/webm"
+            })
+            let url = URL.createObjectURL(blob)
+            let a = document.createElement('a')
+            a.href = url
+            a.download = 'record.webm'
+            a.innerHTML = 'Save recorded video here'
+            a.style.display = 'none'
+            document.body.append(a)
+            a.click()
+            URL.revokeObjectURL(url)
+        }
+
+        function handleDataAvailable(e) {
+            console.log('data-available')
+            if (e.data.size > 0) {
+                recordedTrunk.push(e.data)
+                downloadRecorded()
+            }
+        }
+
+        async function startCapture(e) {
+            try {
+                videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+                mediaRecorder = new MediaRecorder(videoElem.srcObject, mediaRecorderOptions)
+                recordedTrunk = []
+                mediaRecorder.ondataavailable = handleDataAvailable
+                mediaRecorder.start()
+            } catch (err) {
+                console.error(`ERROR:${err}`)
+                return
+            }
+
+
+        }
+
+        function stopCapture(e) {
+            mediaRecorder.stop()
+            let tracks = videoElem.srcObject.getTracks()
+
+            tracks.forEach(track => track.stop())
+            videoElem.srcObject = null
+        }
+
+        startButton.addEventListener("click", e => startCapture(e), false)
+        stopButton.addEventListener("click", e => stopCapture(e), false)
+    </script>
+</body>
