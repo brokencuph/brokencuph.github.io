@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>C++算法编程技巧（1）-对象、指针、引用的创建/基本概念 | brokencuph’s blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="C++算法编程技巧（1）-对象、指针、引用的创建/基本概念" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="C++对C语言最重要的扩展之一就是增加了对象系统。但是，为了保证C++仍能具备与C语言同样的“自由”，C++的面向对象编程体系又与Python、Java等纯粹针对性解决软件工程中面临问题的语言截然不同。" />
+<meta property="og:description" content="C++对C语言最重要的扩展之一就是增加了对象系统。但是，为了保证C++仍能具备与C语言同样的“自由”，C++的面向对象编程体系又与Python、Java等纯粹针对性解决软件工程中面临问题的语言截然不同。" />
+<link rel="canonical" href="/c++/2020/11/26/cpp-basics.html" />
+<meta property="og:url" content="/c++/2020/11/26/cpp-basics.html" />
+<meta property="og:site_name" content="brokencuph’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-26T20:48:06+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="C++算法编程技巧（1）-对象、指针、引用的创建/基本概念" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"/c++/2020/11/26/cpp-basics.html","headline":"C++算法编程技巧（1）-对象、指针、引用的创建/基本概念","dateModified":"2020-11-26T20:48:06+08:00","datePublished":"2020-11-26T20:48:06+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2020/11/26/cpp-basics.html"},"description":"C++对C语言最重要的扩展之一就是增加了对象系统。但是，为了保证C++仍能具备与C语言同样的“自由”，C++的面向对象编程体系又与Python、Java等纯粹针对性解决软件工程中面临问题的语言截然不同。","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="brokencuph's blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">brokencuph&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">C++算法编程技巧（1）-对象、指针、引用的创建/基本概念</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-11-26T20:48:06+08:00" itemprop="datePublished">Nov 26, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>C++对C语言最重要的扩展之一就是增加了对象系统。但是，为了保证C++仍能具备与C语言同样的“自由”，C++的面向对象编程体系又与Python、Java等纯粹针对性解决软件工程中面临问题的语言截然不同。</p>
+
+<h1 id="c不比c慢">C++不比C慢</h1>
+<p>首先需要注意的是，C++和C都是直接编译成Native Code的语言，许多基础机制也很相似，所以在做<em>相同操作</em>的情况下，C++不会比C语言慢。99%的所谓“C++比C语言慢”的情况，都是因为C++的代码确实做了额外操作，导致常数甚至算法复杂度提高导致。</p>
+
+<p>例如，C++的输入输出标准库<code class="language-plaintext highlighter-rouge">&lt;iostream&gt;</code>比<code class="language-plaintext highlighter-rouge">&lt;cstdio&gt;</code>慢的主要原因是，其做了更多的流同步、检验操作。只要使用<code class="language-plaintext highlighter-rouge">ios_base::sync_with_stdio(false)</code>以及<code class="language-plaintext highlighter-rouge">cin.tie(nullptr)</code>将部分开销较大的额外操作禁用（此时不能混用<code class="language-plaintext highlighter-rouge">&lt;iostream&gt;</code>和<code class="language-plaintext highlighter-rouge">&lt;cstdio&gt;</code>），在<strong>输出单个元素</strong>的情况下，其性能很有可能更高，因为它不需要在运行时解析格式字符串，输出的方式已经在编译时确定了，在打开O2优化的前提下，其速度接近于手写的快读快写（取决于编译器的质量和手写的质量）。</p>
+
+<p>但在这个例子中，如果输出格式较为复杂，由于使用cout每个<code class="language-plaintext highlighter-rouge">&lt;&lt;</code>都需要进行函数调用（function call），其开销通常仍然会比解析格式化字符串（<code class="language-plaintext highlighter-rouge">printf</code>）更大。</p>
+
+<p>常用的代码如下：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="cp">#include &lt;iostream&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">ios_base</span><span class="o">::</span><span class="n">sync_with_stdio</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">.</span><span class="n">tie</span><span class="p">(</span><span class="nb">nullptr</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">ans</span><span class="p">;</span>
+
+    <span class="c1">// ...</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ans</span> <span class="o">&lt;&lt;</span> <span class="sc">'\n'</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h1 id="对象与内存管理">对象与内存管理</h1>
+<p>本文不从软件工程的角度去讨论对象的应用。</p>
+
+<p>在单文件的算法程序中，对象的使用主要有两类：自己定义的<code class="language-plaintext highlighter-rouge">struct</code>、<code class="language-plaintext highlighter-rouge">class</code>（往往比较简单），以及标准库和其它人提供的类（往往比较复杂）。下面通过举例的方式来说明一些概念。</p>
+
+<h2 id="类结构体的定义">类/结构体的定义</h2>
+<p>在C++中，<code class="language-plaintext highlighter-rouge">class</code>与<code class="language-plaintext highlighter-rouge">struct</code>的唯一区别是其成员的默认可访问性修饰符。<code class="language-plaintext highlighter-rouge">struct</code>所有成员默认<code class="language-plaintext highlighter-rouge">public</code>，而<code class="language-plaintext highlighter-rouge">class</code>所有成员默认<code class="language-plaintext highlighter-rouge">private</code>。
+假如定义这样一个类：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">struct</span> <span class="nc">my_pair</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span><span class="p">;</span>
+
+    <span class="n">my_pair</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+
+    <span class="n">my_pair</span><span class="p">(</span><span class="kt">int</span> <span class="n">_x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">_y</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">_str</span><span class="p">)</span> <span class="o">:</span> <span class="n">x</span><span class="p">(</span><span class="n">_x</span><span class="p">),</span> <span class="n">y</span><span class="p">(</span><span class="n">_y</span><span class="p">),</span> <span class="n">str</span><span class="p">(</span><span class="n">_str</span><span class="p">);</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">};</span></code></pre></figure>
+
+<h2 id="分析">分析</h2>
+<p>这是一个由成员<code class="language-plaintext highlighter-rouge">x</code>,<code class="language-plaintext highlighter-rouge">y</code>和<code class="language-plaintext highlighter-rouge">str</code>构成的结构体，下面的两个函数称为“构造函数”，调用它们就能构造出<code class="language-plaintext highlighter-rouge">my_pair</code>类型的对象。但这个函数调用通常不使用普通的语法实现，而是分为以下几种情况。
+（左值、右值的概念较为复杂，暂时不予细致讨论）</p>
+
+<h3 id="构造成左值">构造成“左值”</h3>
+<p>如果你想创建一个带有空间的对象用来保存一些数据供将来读写，那么应当使用这种语法：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">my_pair</span> <span class="n">p1</span><span class="p">;</span> <span class="c1">// call default constructor</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">str1</span><span class="p">(</span><span class="s">"abc"</span><span class="p">);</span>
+<span class="n">my_pair</span> <span class="nf">p2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">str1</span><span class="p">);</span> <span class="c1">// call user-defined constructor</span></code></pre></figure>
+
+<p>这样<code class="language-plaintext highlighter-rouge">p1</code>,<code class="language-plaintext highlighter-rouge">p2</code>就成了在当前作用域下能够访问的“变量”或“对象”。要注意的是，在C++中，绝大部分对象在生成时会调用构造函数。若变量定义出现在函数内，则空间会在栈上分配；若在函数以外，则会在静态空间内分配。</p>
+
+<p>此处有几个注意点：</p>
+
+<p>1.不要自作聪明！当构造函数没有参数的时候，如果这样写</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">my_pair</span> <span class="nf">p1</span><span class="p">();</span></code></pre></figure>
+
+<p>可能会发生一些意想不到的事（思考为什么）。</p>
+
+<p>2.在默认构造函数的情况下，<code class="language-plaintext highlighter-rouge">x</code>和<code class="language-plaintext highlighter-rouge">y</code>并不会有默认值，其初始值完全取决于上下文；但<code class="language-plaintext highlighter-rouge">str</code>会有初始值（为空字符串），这是因为对于C++对象类型的成员，构造时会调用他们的构造函数，而<code class="language-plaintext highlighter-rouge">std::string</code>的默认构造是空字符串。</p>
+
+<h3 id="构造成右值">构造成“右值”</h3>
+<p>有时候，我们不想给我们的对象赋予一个名字（identifier）供未来使用，而是使用临时对象直接参与函数调用，这时就需要另一种构造语法：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="kt">void</span> <span class="nf">process_pair</span><span class="p">(</span><span class="n">my_pair</span> <span class="n">p</span><span class="p">);</span> <span class="c1">// a function declaration</span>
+
+<span class="c1">// ...</span>
+
+<span class="n">process_pair</span><span class="p">(</span><span class="n">my_pair</span><span class="p">());</span> <span class="c1">// ok</span>
+<span class="n">process_pair</span><span class="p">(</span><span class="n">my_pair</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">str1</span><span class="p">));</span> <span class="c1">// ok</span></code></pre></figure>
+
+<p>这种情况下，创建出的对象的生命周期与被调用函数中的栈的生命周期相同（其实，此处还涉及到对象的复制，本文暂不讨论）。</p>
+
+<h3 id="指向对象的指针">指向对象的指针</h3>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">my_pair</span><span class="o">*</span> <span class="n">pp1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p1</span><span class="p">;</span>
+<span class="n">pp1</span><span class="o">-&gt;</span><span class="n">x</span><span class="p">,</span> <span class="n">pp1</span><span class="o">-&gt;</span><span class="n">y</span><span class="p">,</span> <span class="n">pp1</span><span class="o">-&gt;</span><span class="n">str</span><span class="p">;</span>
+<span class="n">my_pair</span><span class="o">*</span> <span class="n">pp2</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">my_pair</span><span class="p">();</span>
+<span class="k">delete</span> <span class="n">pp2</span><span class="p">;</span></code></pre></figure>
+
+<p>指针的用法与C语言基本相同。C++中增加了new运算符来在堆上动态分配空间，delete来回收空间，用法如上。<strong>注意</strong>，使用new运算符创建对象会在堆上分配空间，并<strong>按一般规则调用对象的构造函数</strong>。malloc在C++中也可以使用，但它不会调用对象的构造函数，只分配空间，会导致诸如<code class="language-plaintext highlighter-rouge">std::string</code>这样的对象<strong>不可用</strong>（一使用就报错，原因是内部数据没有通过构造函数正常初始化）。</p>
+
+<h3 id="对象引用">对象引用</h3>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">my_pair</span><span class="o">&amp;</span> <span class="n">rp1</span> <span class="o">=</span> <span class="n">p1</span><span class="p">;</span>
+<span class="n">rp1</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">rp1</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">rp1</span><span class="p">.</span><span class="n">str</span><span class="p">;</span> <span class="c1">// use the members as if we are using p1 itself</span>
+<span class="n">my_pair</span><span class="o">&amp;</span> <span class="n">rp2</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="k">new</span> <span class="nf">my_pair</span><span class="p">());</span>
+<span class="k">delete</span> <span class="o">&amp;</span><span class="n">rp2</span><span class="p">;</span></code></pre></figure>
+
+<p>引用是C++中新引入的语言特性，与指针作用类似，但可以避免使用指针的一些特殊语法，相当于隐式的“指针”，与Java/C#中对于对象“变量”的处理十分类似。例如，常见的Java代码会这样创建一个my_pair对象：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">my_pair</span> <span class="n">myPair</span> <span class="o">=</span> <span class="k">new</span> <span class="n">myPair</span><span class="o">();</span></code></pre></figure>
+
+<p>Java中的对象“变量”都是像C++引用这样的隐式指针，指向堆中的某个位置。C++也可以实现类似的使用逻辑（上面代码的后两行），但由于没有垃圾回收器，仍需要在不需要该对象时取得地址并手动将它释放。</p>
+
+<h1 id="思考题">思考题</h1>
+<p>上述的构造函数设计可能会带来什么性能缺陷？</p>
+
+  </div><a class="u-url" href="/c++/2020/11/26/cpp-basics.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">brokencuph&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">brokencuph&#39;s blog</li><li><a class="u-email" href="mailto:hyj63@hotmail.com">hyj63@hotmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/brokencuph"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">brokencuph</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Something related to technology.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
