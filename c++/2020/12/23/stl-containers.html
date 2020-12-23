@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>C++ STL 容器总结 | brokencuph’s blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="C++ STL 容器总结" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;" />
+<meta property="og:description" content="本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;" />
+<link rel="canonical" href="/c++/2020/12/23/stl-containers.html" />
+<meta property="og:url" content="/c++/2020/12/23/stl-containers.html" />
+<meta property="og:site_name" content="brokencuph’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-12-23T16:16:00+08:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="C++ STL 容器总结" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"/c++/2020/12/23/stl-containers.html","headline":"C++ STL 容器总结","dateModified":"2020-12-23T16:16:00+08:00","datePublished":"2020-12-23T16:16:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2020/12/23/stl-containers.html"},"description":"本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="brokencuph's blog" /></head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">brokencuph&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">C++ STL 容器总结</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2020-12-23T16:16:00+08:00" itemprop="datePublished">Dec 23, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>本文讨论C++ STL中各种容器模板的使用。</p>
+<h1 id="通用原则">通用原则</h1>
+<p>各个容器的特征各不相同，但有几个准则是完全通用的。</p>
+<h2 id="容器的创建">容器的创建</h2>
+<p>定义一个结构体：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">struct</span> <span class="nc">term</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+
+    <span class="c1">// 在自定义构造函数后，默认的默认构造函数会被删除，如想保留需显式指定</span>
+    <span class="n">term</span><span class="p">()</span> <span class="o">=</span> <span class="k">default</span><span class="p">;</span>
+
+    <span class="n">term</span><span class="p">(</span><span class="kt">int</span> <span class="n">_x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">_y</span><span class="p">)</span> <span class="o">:</span> <span class="n">x</span><span class="p">(</span><span class="n">_x</span><span class="p">),</span> <span class="n">y</span><span class="p">(</span><span class="n">_y</span><span class="p">)</span>
+    <span class="p">{</span>
+
+    <span class="p">}</span>
+<span class="p">};</span></code></pre></figure>
+
+<p>以<code class="language-plaintext highlighter-rouge">std::vector</code>为例：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi</span><span class="p">;</span> <span class="c1">// (1)</span>
+<span class="n">some_func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span><span class="p">())</span> <span class="c1">// (2)</span></code></pre></figure>
+
+<p>以上是唯一一种所有容器均支持的创建方法，它初始化一个容器，内容为<strong>空（即size=0）</strong>。此时<strong>没有任何term对象被构造出来</strong>。
+(1)在当前scope下创建一个对象，(2)则创建一个临时对象并直接交给某个函数（只是一个例子）。</p>
+
+<h2 id="容器的copy">容器的copy</h2>
+<p>STL中所有对象的copy意义均为“深拷贝”，即在拷贝过后，对新对象的操作<strong>完全不会</strong>影响原有的对象；但前提是，容器中的元素类型必须具有“深拷贝”逻辑的copy-constructor。对于仅仅存放几个数值的结构体来说，<strong>默认的copy-constructor即符合要求</strong>，所以不需要单独定义（下文的move-constructor同理）。如果自定义类型中存有指针，通常需要考虑是否需要把指针指向的内存空间也复制一份。</p>
+
+<p>语法如下：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi2</span> <span class="o">=</span> <span class="n">vi</span><span class="p">;</span> <span class="c1">// (1) copy-assignment</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi2</span><span class="p">(</span><span class="n">vi</span><span class="p">);</span> <span class="c1">// (2) copy-construct</span>
+<span class="n">some_func</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span><span class="p">(</span><span class="n">vi</span><span class="p">))</span> <span class="c1">// (3) r-value copy-construct</span></code></pre></figure>
+
+<p>对于任何容器，copy操作的复杂度至少为O(n)，因为要重新构造n个元素。具体的耗时还取决于容器本身的特征。</p>
+
+<h2 id="容器的move">容器的move</h2>
+<p>move是C++11中新增加的概念，它使得程序员可以充分复用之前开辟的堆空间，而不是每次都复制一遍，或者自行用指针繁琐地实现。
+常见的STL容器中，最关键的成员便是指向内存空间的一个指针，如<code class="language-plaintext highlighter-rouge">term* p</code>。在copy时，会把该指针指向的整个数组复制一遍，而move时则只会复制这个指针。
+当然，在move结束后，被move的那个对象便不再有有意义的内容了。</p>
+
+<p>语法如下：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi3</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">vi</span><span class="p">);</span> <span class="c1">// (1) move-assignment (after this, vi becomes empty, and content of vi3 is inherited from original vi)</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi3</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">vi</span><span class="p">));</span> <span class="c1">// (2) move-construct (same as (1))</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span> <span class="n">vi3</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">term</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)));</span> <span class="c1">// (2) move-construct (with pure r-value)</span></code></pre></figure>
+
+<p>需要注意的是，触发move的条件是给vector构造函数的参数是一个“右值”。右值通常有两种产生方法：</p>
+<ol>
+  <li>使用<code class="language-plaintext highlighter-rouge">std::move</code>将左值强制转换为右值；</li>
+  <li>直接构造（如上文例子）。</li>
+</ol>
+
+<p><strong>注意</strong>：<code class="language-plaintext highlighter-rouge">std::move</code>本身并不会移动对象，它的作用只是让某个对象符合移动构造函数的匹配条件。</p>
+
+<h2 id="小提示">小提示</h2>
+<p>在给函数传递实际参数时，相当于对参数列表中的每一个值进行了一次construct，至于construct的逻辑则取决于实参和形参的类型。</p>
+
+<h2 id="容器的遍历">容器的遍历</h2>
+<p>虽然各容器内部结构不同，但是如果要遍历其中<strong>所有元素</strong>，方法是一致的：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">for</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">term</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">vi</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">vi</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">it</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">it</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">++</span><span class="p">,</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">y</span><span class="o">++</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span> <span class="c1">// output all items</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>在C++11环境下，可以用<code class="language-plaintext highlighter-rouge">auto</code>来代替<code class="language-plaintext highlighter-rouge">std::vector&lt;term&gt;::iterator</code>，也可以使用range-based for-loop：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">x</span> <span class="o">:</span> <span class="n">vi</span><span class="p">)</span> <span class="c1">// 如果要修改vi中的元素，必须用引用来声明x</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">x</span><span class="o">++</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">y</span><span class="o">++</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="c1">// same as above</span>
+<span class="p">}</span></code></pre></figure>
+
+<h1 id="不同容器的特征">不同容器的特征</h1>
+<h2 id="stdvector与stdstring"><code class="language-plaintext highlighter-rouge">std::vector</code>与<code class="language-plaintext highlighter-rouge">std::string</code></h2>
+<h3 id="概述">概述</h3>
+<p>优势：随机访问（用下标访问）【O(1)】，遍历（无额外开销），结尾插入与删除<br />
+劣势：查找（无序情况下只能线性）<br />
+评价：相当于动态数组</p>
+
+<h3 id="特别用法">特别用法</h3>
+<h4 id="stdvector">std::vector</h4>
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">std::vector</code>可以直接当作数组作下标访问，且这种访问也<strong>不会</strong>做下标越界检查；它额外提供了一个at方法，作用与下标运算符一致，但在发现下标越界时会抛出异常，需要用<code class="language-plaintext highlighter-rouge">try...catch...</code>来处理。</p>
+  </li>
+  <li>
+    <p>作为较为基本的容器（微软官方文档推荐：在没有特殊需要的情况下均使用vector），其创建方法也比较方便和多元，常用的有以下几个：</p>
+  </li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vi</span><span class="p">();</span> <span class="c1">// empty vector, any subscript access is incorrect before push_back</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vi</span><span class="p">(</span><span class="n">n</span><span class="p">);</span> <span class="c1">// a vector with n int's (it has already had n terms, which you can access by subscript)</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vi</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span> <span class="c1">// result in {val, val, val, ..., val} (n val's)</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vi</span><span class="p">(</span><span class="n">vi2</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">vi2</span><span class="p">.</span><span class="n">end</span><span class="p">());</span> <span class="c1">// copy a range to vi</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vi</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">};</span> <span class="c1">// initialize with an initializer-list (now it has 5 elements)</span></code></pre></figure>
+
+<p>3. <em>较快</em>的修改类操作主要是push_back和pop_back，即尾插入和尾删除，可用于实现栈。（仍有可能发生reallocation，速度会下降）</p>
+
+<p>4. 如果知道即将创建的vector的大小，最好预分配空间。一种方法是使用构造器直接生成具有n个元素的vector，然后像数组那样使用它；另一种是先创建一个空vector，随后调用reserve方法保留所需空间，然后再把数据push_back进去。</p>
+
+<p>5. 关于push_back和emplace_back (C++11)：push_back的参数是要插入的对象本身，如果是左值会copy，右值会move；而emplace_back的参数则是要插入的对象的构造函数参数列表（所以数量不定）。例如，假设有一个<code class="language-plaintext highlighter-rouge">vector&lt;term&gt; vi</code>，则以下两种写法在功能上是等价的：</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">vi</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">term</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">));</span> <span class="c1">// 1 - move the r-value "term(x, y)" into the back of vi</span>
+<span class="n">vi</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span> <span class="c1">// 2 - directly forward arguments to term constructor</span></code></pre></figure>
+
+<p>emplace_back的好处是可以直接在vector内部构造对象，省去了额外copy或move的过程。</p>
+
+<h4 id="stdstring">std::string</h4>
+<p>数据结构意义上与<code class="language-plaintext highlighter-rouge">std::vector&lt;char&gt;</code>相近，但有些特殊的用法。</p>
+
+<p>1. std::string提供了一些额外的处理字符串时的常用函数，如查找、子串匹配、截取字串、替换等。</p>
+
+<p>2. 查找类函数的使用方法与STL算法库中一般性的查找算法略有不同，其返回值是找到的位置在该string中的下标而非迭代器；若找不到，会返回一个特殊的常数<code class="language-plaintext highlighter-rouge">string::npos</code>。<strong>注意</strong>：在许多库实现中，<code class="language-plaintext highlighter-rouge">string::npos</code>的取值等价于无符号整数类型的最大值，通常与有符号意义下的-1相等，所以不少程序会直接使用-1作为未找到的条件，而这是不能够保证正确的。</p>
+
+<p>待更新…</p>
+
+  </div><a class="u-url" href="/c++/2020/12/23/stl-containers.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">brokencuph&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">brokencuph&#39;s blog</li><li><a class="u-email" href="mailto:hyj63@hotmail.com">hyj63@hotmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/brokencuph"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">brokencuph</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Something related to technology.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
