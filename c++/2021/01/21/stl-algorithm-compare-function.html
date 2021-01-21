@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="C++ STL Algorithm库比较函数" />
 <script type="application/ld+json">
-{"dateModified":"2021-01-21T13:46:00+08:00","datePublished":"2021-01-21T13:46:00+08:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2021/01/21/stl-algorithm-compare-function.html"},"url":"/c++/2021/01/21/stl-algorithm-compare-function.html","description":"STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。","headline":"C++ STL Algorithm库比较函数","@context":"https://schema.org"}</script>
+{"@type":"BlogPosting","headline":"C++ STL Algorithm库比较函数","url":"/c++/2021/01/21/stl-algorithm-compare-function.html","dateModified":"2021-01-21T13:46:00+08:00","datePublished":"2021-01-21T13:46:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2021/01/21/stl-algorithm-compare-function.html"},"description":"STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="brokencuph's blog" /></head>
 <body><header class="site-header" role="banner">
@@ -122,6 +122,29 @@
 
 <h1 id="比较逻辑">比较逻辑</h1>
 <p>在算法层面，需要注意的宏观要求是该函数需满足数学意义上的strict weak ordering，网上有不少这方面的资料。大部分时候，注意自己实现的比较逻辑需要跟小于号或大于号的逻辑类似，<strong>而非</strong>小于等于或大于等于，这样就不会出现问题。</p>
+
+<h1 id="示例为stdstring自定义小于比较函数">示例：为std::string自定义小于比较函数</h1>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="k">auto</span> <span class="n">cmp_str</span> <span class="o">=</span> <span class="p">[](</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">auto</span> <span class="n">it_a</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">it_b</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">it_a</span> <span class="o">!=</span> <span class="n">a</span><span class="p">.</span><span class="n">cend</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">it_b</span> <span class="o">!=</span> <span class="n">b</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">it_a</span> <span class="o">&lt;</span> <span class="o">*</span><span class="n">it_b</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">it_a</span> <span class="o">&gt;</span> <span class="o">*</span><span class="n">it_b</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it_a</span> <span class="o">==</span> <span class="n">a</span><span class="p">.</span><span class="n">cend</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">it_b</span> <span class="o">!=</span> <span class="n">b</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
 
   </div><a class="u-url" href="/c++/2021/01/21/stl-algorithm-compare-function.html" hidden></a>
 </article>
