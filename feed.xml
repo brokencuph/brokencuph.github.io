@@ -1,4 +1,78 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2020-12-23T17:43:45+08:00</updated><id>/feed.xml</id><title type="html">brokencuph’s blog</title><subtitle>Something related to technology.</subtitle><entry><title type="html">C++ STL 容器总结</title><link href="/c++/2020/12/23/stl-containers.html" rel="alternate" type="text/html" title="C++ STL 容器总结" /><published>2020-12-23T16:16:00+08:00</published><updated>2020-12-23T16:16:00+08:00</updated><id>/c++/2020/12/23/stl-containers</id><content type="html" xml:base="/c++/2020/12/23/stl-containers.html">&lt;p&gt;本文讨论C++ STL中各种容器模板的使用。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-01-21T14:24:36+08:00</updated><id>/feed.xml</id><title type="html">brokencuph’s blog</title><subtitle>Something related to technology.</subtitle><entry><title type="html">C++ STL Algorithm库比较函数</title><link href="/c++/2021/01/21/stl-algorithm-compare-function.html" rel="alternate" type="text/html" title="C++ STL Algorithm库比较函数" /><published>2021-01-21T13:46:00+08:00</published><updated>2021-01-21T13:46:00+08:00</updated><id>/c++/2021/01/21/stl-algorithm-compare-function</id><content type="html" xml:base="/c++/2021/01/21/stl-algorithm-compare-function.html">&lt;p&gt;STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。&lt;/p&gt;
+
+&lt;h1 id=&quot;比较函数的签名&quot;&gt;比较函数的签名&lt;/h1&gt;
+&lt;p&gt;较为标准的比较函数，无论是通过函数指针/Functor/Lambda表达式/重载运算符来提供，都应当具有如下签名形式：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;kt&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;cmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;此处需要强调的是，应当使用const&amp;amp;来修饰被比较的类型，这样在被库函数调用时可以避免对象的复制，从而只有传递地址的开销。&lt;/p&gt;
+
+&lt;p&gt;理论上讲，由于算法库中的函数均为函数模板，只要自定义的比较函数cmp能够支持这样的语句：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;则该函数是&lt;strong&gt;合法&lt;/strong&gt;的。因此，有时为了简单，也会使用&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;kt&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;cmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;T&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;来定义比较函数，这也是能够通过编译的。然而，如果类型T是std::string/std::vector这样的对象（copy时间复杂度为O(N)而非O(1)），那么有可能会有显著的（一个数量级，即O(N)）的性能下降。（注：STL文档中标注的时间复杂度，如sort为O(nlogn)，是假定比较函数的开销为O(1)的情况下，如果不是O(1)，通常需要乘以这个比较函数的复杂度）&lt;/p&gt;
+
+&lt;p&gt;结论：通常情况下，应当使用上文第一个标准形式作为比较函数。&lt;/p&gt;
+
+&lt;h1 id=&quot;函数指针的性能问题&quot;&gt;函数指针的性能问题&lt;/h1&gt;
+&lt;p&gt;STL中的函数通常有类似下面的签名（以sort为例）：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;template&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CompFunc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Iter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Iter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CompFunc&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;观察到，第三个参数即比较函数，它的类型是由模板机制自动推导出来的，这实际上提供了相当大的灵活性：任意一个类型，只要它能够被像func(a,b)这样调用，都能够作为合法的第三个参数。（此处对比C语言库中的qsort，只能使用函数指针，而且函数的签名也是严格定死的）&lt;/p&gt;
+
+&lt;p&gt;函数指针是此处的一种选择。如果传入函数指针，则CompFunc类型会自动推导成类似bool(*)(const T&amp;amp;, const T&amp;amp;)这样的指针类型。&lt;strong&gt;此处需要注意：&lt;/strong&gt;由于从理论上讲，函数指针的地址可以是任何数，而并不一定真的是某个在C语言程序中显式定义的函数。例如，部分黑客程序把某函数的机器码直接编码为ASCII码，然后放入一个char数组中，接着将这个char数组强制转换成函数指针类型并进行调用，如果代码得当，是&lt;strong&gt;能够成功&lt;/strong&gt;的。&lt;/p&gt;
+
+&lt;p&gt;以上是为了说明，一旦做出函数指针的类型特化，该指针指向的区域就没有任何限制，因此编译器难以对其进行任何优化，只能按照最死板的调用约定进行调用，从而在每次比较时都必须有一个标准函数调用的开销。而其它方式，包括Lambda/Overloading/Functor等，都通过C++的类型系统在&lt;strong&gt;类型层面&lt;/strong&gt;就定死了CompFunc的机制，因此编译器可以充分利用信息，进行优化操作。在《算法竞赛入门经典–习题解析》中，作者也提到该方式经过实验会有较大的性能差距。&lt;/p&gt;
+
+&lt;h1 id=&quot;推荐的方式&quot;&gt;推荐的方式&lt;/h1&gt;
+&lt;p&gt;如果是自定义的类型，最好直接使用operator overloading，如：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;abc&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;constexpr&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;operator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;another&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;此外，可以使用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;functional&amp;gt;&lt;/code&gt;头文件中定义的less、greater等Functor应付一些略特殊的情况。&lt;/p&gt;
+
+&lt;p&gt;如果确实需要自己写比较函数，在传统C++中可以自己写Function object (Functor)，如：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;cmp&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;bool&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;operator&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;someFunc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;arr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cmp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 注意此处需要在调用时构造cmp这个对象，因为“类型”本身不能通过参数传递&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;在C++11及之后，可以使用Named Lambda，例如：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c--&quot; data-lang=&quot;c++&quot;&gt;&lt;span class=&quot;k&quot;&gt;auto&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cmp_func&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[](&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;abc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// ...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;sort&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cmp_func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;h1 id=&quot;比较逻辑&quot;&gt;比较逻辑&lt;/h1&gt;
+&lt;p&gt;在算法层面，需要注意的宏观要求是该函数需满足数学意义上的strict weak ordering，网上有不少这方面的资料。大部分时候，注意自己实现的比较逻辑需要跟小于号或大于号的逻辑类似，&lt;strong&gt;而非&lt;/strong&gt;小于等于或大于等于，这样就不会出现问题。&lt;/p&gt;</content><author><name></name></author><category term="c++" /><summary type="html">STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。</summary></entry><entry><title type="html">C++ STL 容器总结</title><link href="/c++/2020/12/23/stl-containers.html" rel="alternate" type="text/html" title="C++ STL 容器总结" /><published>2020-12-23T16:16:00+08:00</published><updated>2020-12-23T16:16:00+08:00</updated><id>/c++/2020/12/23/stl-containers</id><content type="html" xml:base="/c++/2020/12/23/stl-containers.html">&lt;p&gt;本文讨论C++ STL中各种容器模板的使用。&lt;/p&gt;
 &lt;h1 id=&quot;通用原则&quot;&gt;通用原则&lt;/h1&gt;
 &lt;p&gt;各个容器的特征各不相同，但有几个准则是完全通用的。&lt;/p&gt;
 &lt;h2 id=&quot;容器的创建&quot;&gt;容器的创建&lt;/h2&gt;
