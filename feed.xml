@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-01-21T22:51:50+08:00</updated><id>/feed.xml</id><title type="html">brokencuph’s blog</title><subtitle>Something related to technology.</subtitle><entry><title type="html">C++ STL Algorithm库比较函数</title><link href="/c++/2021/01/21/stl-algorithm-compare-function.html" rel="alternate" type="text/html" title="C++ STL Algorithm库比较函数" /><published>2021-01-21T13:46:00+08:00</published><updated>2021-01-21T13:46:00+08:00</updated><id>/c++/2021/01/21/stl-algorithm-compare-function</id><content type="html" xml:base="/c++/2021/01/21/stl-algorithm-compare-function.html">&lt;p&gt;STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-04-19T23:20:29+08:00</updated><id>/feed.xml</id><title type="html">brokencuph’s blog</title><subtitle>Something related to technology.</subtitle><entry><title type="html">C++ STL Algorithm库比较函数</title><link href="/c++/2021/01/21/stl-algorithm-compare-function.html" rel="alternate" type="text/html" title="C++ STL Algorithm库比较函数" /><published>2021-01-21T13:46:00+08:00</published><updated>2021-01-21T13:46:00+08:00</updated><id>/c++/2021/01/21/stl-algorithm-compare-function</id><content type="html" xml:base="/c++/2021/01/21/stl-algorithm-compare-function.html">&lt;p&gt;STL算法库中，包括sort在内的多个常用函数需要/可选提供比较函数，本文记录了关于比较函数的一些要点。&lt;/p&gt;
 
 &lt;h1 id=&quot;比较函数的签名&quot;&gt;比较函数的签名&lt;/h1&gt;
 &lt;p&gt;较为标准的比较函数，无论是通过函数指针/Functor/Lambda表达式/重载运算符来提供，都应当具有如下签名形式：&lt;/p&gt;
@@ -214,6 +214,37 @@
 &lt;p&gt;1. std::string提供了一些额外的处理字符串时的常用函数，如查找、子串匹配、截取字串、替换等。&lt;/p&gt;
 
 &lt;p&gt;2. 查找类函数的使用方法与STL算法库中一般性的查找算法略有不同，其返回值是找到的位置在该string中的下标而非迭代器；若找不到，会返回一个特殊的常数&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;string::npos&lt;/code&gt;。&lt;strong&gt;注意&lt;/strong&gt;：在许多库实现中，&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;string::npos&lt;/code&gt;的取值等价于无符号整数类型的最大值，通常与有符号意义下的-1相等，所以不少程序会直接使用-1作为未找到的条件，而这是不能够保证正确的。&lt;/p&gt;
+
+&lt;h2 id=&quot;stdmap及其变换stdmultimapstdsetstdmultiset&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::map&lt;/code&gt;及其变换（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::multimap&lt;/code&gt;,&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::set&lt;/code&gt;,&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::multiset&lt;/code&gt;）&lt;/h2&gt;
+&lt;h3 id=&quot;概述-1&quot;&gt;概述&lt;/h3&gt;
+&lt;p&gt;用平衡查找树（红黑树）实现的关联数组。&lt;/p&gt;
+
+&lt;p&gt;使用前提：Key对象实现了小于运算符（或与之对应的相关函数），且能稳定地进行相等判断&lt;br /&gt;
+优势：O(log n)查找（原理类似二分）、插入、删除key；相比哈希表对数据依赖性小，更稳定和易于使用，是关联数组的首选结构&lt;br /&gt;
+劣势：不能随机访问，遍历速度相对&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::vector&lt;/code&gt;慢；丢失插入顺序&lt;/p&gt;
+
+&lt;h3 id=&quot;注意事项&quot;&gt;注意事项&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;常用操作：insert, emplace, erase, find, count, lower_bound, upper_bound, operator[], at&lt;/li&gt;
+  &lt;li&gt;使用operator[]访问元素时，如果该key不存在会被&lt;strong&gt;自动创建&lt;/strong&gt;，并赋予默认值；使用at访问元素时，如不存在会抛出异常。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::map&lt;/code&gt;的&lt;em&gt;value_type&lt;/em&gt;是&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt;，意味着在使用迭代器访问的时候，能够同时访问到其中的键与值。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::multimap&lt;/code&gt;是&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::map&lt;/code&gt;的&lt;strong&gt;多值&lt;/strong&gt;版，即一个Key可以对应多个Value，所以不再能够使用operator[]和at直接访问值，而需要使用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;equal_range&lt;/code&gt;来获得该Key的上下界。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::set&lt;/code&gt;和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::multiset&lt;/code&gt;分别是&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::map&lt;/code&gt;和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::multimap&lt;/code&gt;的&lt;strong&gt;退化&lt;/strong&gt;版，相当于不指定映射到的值，只存储Key的存在性；由于此，其&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value_type&lt;/code&gt;是const Key。&lt;/li&gt;
+  &lt;li&gt;内置类型（包括指向任何类型的指针）都能作为Key；能直接作为Key的常见标准库类型有（基本是各种支持字典序比较的容器）：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::pair&amp;lt;&amp;gt;&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::tuple&amp;lt;&amp;gt;&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::array&amp;lt;&amp;gt;&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::vector&amp;lt;&amp;gt;&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::set&amp;lt;&amp;gt;&lt;/code&gt; （是的，可以有&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::set&amp;lt;std::set&amp;lt;int&amp;gt;&amp;gt;&lt;/code&gt;）, …。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;stdunordered_map及其变换stdunordered_multimapstdunordered_setstdunordered_multiset&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::unordered_map&lt;/code&gt;及其变换（&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::unordered_multimap&lt;/code&gt;,&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::unordered_set&lt;/code&gt;,&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::unordered_multiset&lt;/code&gt;）&lt;/h2&gt;
+&lt;p&gt;用哈希表实现的关联数组。&lt;/p&gt;
+
+&lt;p&gt;使用前提：Key对象定义了哈希函数，以及相等运算符（不必有小于运算符）&lt;br /&gt;
+优势：O(1)查找&lt;br /&gt;
+劣势：丢失所有顺序信息；实际性能还取决于哈希函数的好坏（对数据敏感，理论上&lt;strong&gt;可能因人为构造的数据而性能大幅度下降&lt;/strong&gt;）&lt;/p&gt;
+
+&lt;h3 id=&quot;注意事项-1&quot;&gt;注意事项&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;用法基本与&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::map&lt;/code&gt;系列相同，但没有诸如&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lower_bound&lt;/code&gt;,&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;upper_bound&lt;/code&gt;这样的依赖强顺序的查找函数&lt;/li&gt;
+  &lt;li&gt;内置类型（包括指向任何类型的指针）都能作为Key；能直接作为Key的常见标准库类型有：&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::bitset&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::vector&amp;lt;bool&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;待更新…&lt;/p&gt;</content><author><name></name></author><category term="c++" /><summary type="html">本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;</summary></entry><entry><title type="html">C++算法编程技巧（1）-对象、指针、引用的创建/基本概念</title><link href="/c++/2020/11/26/cpp-basics.html" rel="alternate" type="text/html" title="C++算法编程技巧（1）-对象、指针、引用的创建/基本概念" /><published>2020-11-26T20:48:06+08:00</published><updated>2020-11-26T20:48:06+08:00</updated><id>/c++/2020/11/26/cpp-basics</id><content type="html" xml:base="/c++/2020/11/26/cpp-basics.html">&lt;p&gt;C++对C语言最重要的扩展之一就是增加了对象系统。但是，为了保证C++仍能具备与C语言同样的“自由”，C++的面向对象编程体系又与Python、Java等纯粹针对性解决软件工程中面临问题的语言截然不同。&lt;/p&gt;
 

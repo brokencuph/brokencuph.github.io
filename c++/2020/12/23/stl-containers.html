@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="C++ STL 容器总结" />
 <script type="application/ld+json">
-{"@type":"BlogPosting","headline":"C++ STL 容器总结","url":"/c++/2020/12/23/stl-containers.html","dateModified":"2020-12-23T16:16:00+08:00","datePublished":"2020-12-23T16:16:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2020/12/23/stl-containers.html"},"description":"本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;","@context":"https://schema.org"}</script>
+{"dateModified":"2020-12-23T16:16:00+08:00","datePublished":"2020-12-23T16:16:00+08:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/c++/2020/12/23/stl-containers.html"},"url":"/c++/2020/12/23/stl-containers.html","description":"本文讨论C++ STL中各种容器模板的使用。 通用原则 各个容器的特征各不相同，但有几个准则是完全通用的。 容器的创建 定义一个结构体： struct term { int x, y;","headline":"C++ STL 容器总结","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="brokencuph's blog" /></head>
 <body><header class="site-header" role="banner">
@@ -165,6 +165,37 @@
 <p>1. std::string提供了一些额外的处理字符串时的常用函数，如查找、子串匹配、截取字串、替换等。</p>
 
 <p>2. 查找类函数的使用方法与STL算法库中一般性的查找算法略有不同，其返回值是找到的位置在该string中的下标而非迭代器；若找不到，会返回一个特殊的常数<code class="language-plaintext highlighter-rouge">string::npos</code>。<strong>注意</strong>：在许多库实现中，<code class="language-plaintext highlighter-rouge">string::npos</code>的取值等价于无符号整数类型的最大值，通常与有符号意义下的-1相等，所以不少程序会直接使用-1作为未找到的条件，而这是不能够保证正确的。</p>
+
+<h2 id="stdmap及其变换stdmultimapstdsetstdmultiset"><code class="language-plaintext highlighter-rouge">std::map</code>及其变换（<code class="language-plaintext highlighter-rouge">std::multimap</code>,<code class="language-plaintext highlighter-rouge">std::set</code>,<code class="language-plaintext highlighter-rouge">std::multiset</code>）</h2>
+<h3 id="概述-1">概述</h3>
+<p>用平衡查找树（红黑树）实现的关联数组。</p>
+
+<p>使用前提：Key对象实现了小于运算符（或与之对应的相关函数），且能稳定地进行相等判断<br />
+优势：O(log n)查找（原理类似二分）、插入、删除key；相比哈希表对数据依赖性小，更稳定和易于使用，是关联数组的首选结构<br />
+劣势：不能随机访问，遍历速度相对<code class="language-plaintext highlighter-rouge">std::vector</code>慢；丢失插入顺序</p>
+
+<h3 id="注意事项">注意事项</h3>
+<ol>
+  <li>常用操作：insert, emplace, erase, find, count, lower_bound, upper_bound, operator[], at</li>
+  <li>使用operator[]访问元素时，如果该key不存在会被<strong>自动创建</strong>，并赋予默认值；使用at访问元素时，如不存在会抛出异常。</li>
+  <li><code class="language-plaintext highlighter-rouge">std::map</code>的<em>value_type</em>是<code class="language-plaintext highlighter-rouge">std::pair&lt;const Key, T&gt;</code>，意味着在使用迭代器访问的时候，能够同时访问到其中的键与值。</li>
+  <li><code class="language-plaintext highlighter-rouge">std::multimap</code>是<code class="language-plaintext highlighter-rouge">std::map</code>的<strong>多值</strong>版，即一个Key可以对应多个Value，所以不再能够使用operator[]和at直接访问值，而需要使用<code class="language-plaintext highlighter-rouge">equal_range</code>来获得该Key的上下界。</li>
+  <li><code class="language-plaintext highlighter-rouge">std::set</code>和<code class="language-plaintext highlighter-rouge">std::multiset</code>分别是<code class="language-plaintext highlighter-rouge">std::map</code>和<code class="language-plaintext highlighter-rouge">std::multimap</code>的<strong>退化</strong>版，相当于不指定映射到的值，只存储Key的存在性；由于此，其<code class="language-plaintext highlighter-rouge">value_type</code>是const Key。</li>
+  <li>内置类型（包括指向任何类型的指针）都能作为Key；能直接作为Key的常见标准库类型有（基本是各种支持字典序比较的容器）：<code class="language-plaintext highlighter-rouge">std::string</code>, <code class="language-plaintext highlighter-rouge">std::pair&lt;&gt;</code>, <code class="language-plaintext highlighter-rouge">std::tuple&lt;&gt;</code>, <code class="language-plaintext highlighter-rouge">std::array&lt;&gt;</code>, <code class="language-plaintext highlighter-rouge">std::vector&lt;&gt;</code>, <code class="language-plaintext highlighter-rouge">std::set&lt;&gt;</code> （是的，可以有<code class="language-plaintext highlighter-rouge">std::set&lt;std::set&lt;int&gt;&gt;</code>）, …。</li>
+</ol>
+
+<h2 id="stdunordered_map及其变换stdunordered_multimapstdunordered_setstdunordered_multiset"><code class="language-plaintext highlighter-rouge">std::unordered_map</code>及其变换（<code class="language-plaintext highlighter-rouge">std::unordered_multimap</code>,<code class="language-plaintext highlighter-rouge">std::unordered_set</code>,<code class="language-plaintext highlighter-rouge">std::unordered_multiset</code>）</h2>
+<p>用哈希表实现的关联数组。</p>
+
+<p>使用前提：Key对象定义了哈希函数，以及相等运算符（不必有小于运算符）<br />
+优势：O(1)查找<br />
+劣势：丢失所有顺序信息；实际性能还取决于哈希函数的好坏（对数据敏感，理论上<strong>可能因人为构造的数据而性能大幅度下降</strong>）</p>
+
+<h3 id="注意事项-1">注意事项</h3>
+<ol>
+  <li>用法基本与<code class="language-plaintext highlighter-rouge">std::map</code>系列相同，但没有诸如<code class="language-plaintext highlighter-rouge">lower_bound</code>,<code class="language-plaintext highlighter-rouge">upper_bound</code>这样的依赖强顺序的查找函数</li>
+  <li>内置类型（包括指向任何类型的指针）都能作为Key；能直接作为Key的常见标准库类型有：<code class="language-plaintext highlighter-rouge">std::string</code>, <code class="language-plaintext highlighter-rouge">std::bitset</code>, <code class="language-plaintext highlighter-rouge">std::vector&lt;bool&gt;</code></li>
+</ol>
 
 <p>待更新…</p>
 
